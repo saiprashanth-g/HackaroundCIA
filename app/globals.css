@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #fbf8f2;
+  --ink: #14213d;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial number/heading feel for Fraunces */
+.font-serif {
+  font-optical-sizing: auto;
+}
+
+/* Reduced-motion: kill smooth scroll + any CSS animation fallbacks.
+   GSAP is additionally disabled in JS via matchMedia. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Thin, paper-toned scrollbar to keep the editorial calm on desktop */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d8cfbb var(--paper);
+}
