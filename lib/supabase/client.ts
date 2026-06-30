@@ -11,9 +11,16 @@ import type { Database } from "@/lib/supabase/database.types";
  */
 export function createSupabaseBrowserClient() {
   console.log("auto deploy test");
+
   if (!isSupabaseConfigured) {
-    console.warn("⚠️ Supabase client could not be initialized: Environment variables (supabaseUrl or supabaseAnonKey) are missing.");
+    console.warn(
+      "⚠️ Supabase client could not be initialized: Environment variables (supabaseUrl or supabaseAnonKey) are missing."
+    );
     return null;
   }
-  return createBrowserClient<Database>(env.supabaseUrl, env.supabaseAnonKey);
+
+  return createBrowserClient<Database>(
+    env.supabaseUrl,
+    env.supabaseAnonKey
+  );
 }
