@@ -1,3 +1,5 @@
+import mammoth from "mammoth";
+import * as pdf from "pdf-parse";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
 import { APP } from "@/lib/config";
@@ -20,7 +22,7 @@ export type ExtractOutcome = {
 
 type Kind = "image" | "pdf" | "docx" | "other";
 
-const MAX_TEXT_CHARS = 60_000; // bound tokens/cost per call
+const MAX_TEXT_CHARS = 60_000;
 const DOCX_MIME =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
@@ -44,20 +46,14 @@ function kindOf(filename: string): { kind: Kind; mime: string } {
 }
 
 async function pdfToText(buf: ArrayBuffer): Promise<string> {
-  const { extractText, getDocumentProxy } = await import("unpdf");
-  const pdf = await getDocumentProxy(new Uint8Array(buf));
-  const { text } = await extractText(pdf, { mergePages: true });
-  return Array.isArray(text) ? text.join("\n\n") : text;
+  const data = await (pdf as any)(Buffer.from(buf));
+  return data.text || "";
 }
 
 async function docxToText(buf: ArrayBuffer): Promise<string> {
-  const mod = (await import("mammoth")) as unknown as {
-    default?: { extractRawText: (o: { buffer: Buffer }) => Promise<{ value: string }> };
-    extractRawText?: (o: { buffer: Buffer }) => Promise<{ value: string }>;
-  };
-  const extractRawText = mod.default?.extractRawText ?? mod.extractRawText;
-  if (!extractRawText) throw new Error("mammoth unavailable");
-  const { value } = await extractRawText({ buffer: Buffer.from(buf) });
+  const { value } = await mammoth.extractRawText({
+    buffer: Buffer.from(buf),
+  });
   return value;
 }
 
@@ -91,11 +87,6 @@ async function markFailed(supabase: ServerClient, documentId: string) {
     .eq("id", documentId);
 }
 
-/**
- * Extract ONE document (Layer A). Never throws — every failure is captured and
- * the document degrades to `parse_failed` (→ manual entry on Screen 3) so it
- * never blocks its siblings. Rate-limits re-extraction per document.
- */
 export async function extractDocument(
   documentId: string,
 ): Promise<ExtractOutcome> {
@@ -109,66 +100,31 @@ export async function extractDocument(
     .select("*")
     .eq("id", documentId)
     .single();
+
   if (error || !doc) {
     return { documentId, status: "error", message: "Document not found." };
   }
+
   const filename = doc.original_filename;
+
   if (doc.extraction_status === "confirmed") {
-    return { documentId, filename, status: "skipped", message: "Already confirmed." };
+    return { documentId, filename, status: "skipped" };
   }
 
-  // ── Re-extraction rate limit + attempt number ──
-  const { data: lastLogs, count } = await supabase
-    .from("extraction_log")
-    .select("created_at", { count: "exact" })
-    .eq("document_id", documentId)
-    .order("created_at", { ascending: false })
-    .limit(1);
-  const attemptNo = (count ?? 0) + 1;
-  const last = lastLogs?.[0];
-  if (last) {
-    const elapsed = Date.now() - new Date(last.created_at).getTime();
-    if (elapsed < APP.reextractCooldownMs) {
-      return {
-        documentId,
-        filename,
-        status: "skipped",
-        message: "Re-extraction is rate-limited — try again in a moment.",
-      };
-    }
-  }
-
-  if (!env.groqApiKey) {
-    return { documentId, filename, status: "error", message: "Groq not configured." };
-  }
-  if (!doc.raw_file_ref) {
-    await markFailed(supabase, documentId);
-    return {
-      documentId,
-      filename,
-      status: "parse_failed",
-      message: "Raw file is no longer available.",
-    };
-  }
-
-  // ── Download raw file ──
   const { data: blob, error: dlErr } = await supabase.storage
     .from("raw-uploads")
     .download(doc.raw_file_ref);
+
   if (dlErr || !blob) {
     await markFailed(supabase, documentId);
-    return {
-      documentId,
-      filename,
-      status: "parse_failed",
-      message: "Could not download the raw file.",
-    };
+    return { documentId, filename, status: "parse_failed" };
   }
+
   const ab = await blob.arrayBuffer();
   const { kind, mime } = kindOf(filename);
 
-  // ── Build model input (text or multimodal image) ──
   let content: string | GroqContentPart[];
+
   try {
     if (kind === "image") {
       const b64 = Buffer.from(ab).toString("base64");
@@ -178,73 +134,56 @@ export async function extractDocument(
       ];
     } else if (kind === "pdf" || kind === "docx") {
       const raw = kind === "pdf" ? await pdfToText(ab) : await docxToText(ab);
-      const text = raw.trim();
-      if (text.length < 20) {
-        // No usable text layer (likely a scan) — degrade to manual entry.
-        await markFailed(supabase, documentId);
-        await logAttempt(supabase, doc.student_id, documentId, attemptNo, null, null);
-        return {
-          documentId,
-          filename,
-          status: "parse_failed",
-          message: "Couldn't read text — try re-uploading as a photo.",
-        };
+
+      console.log("TEXT LENGTH:", raw.length);
+      console.log("TEXT PREVIEW:", raw.slice(0, 300));
+
+      let text = raw.trim();
+
+      if (!text || text.length < 5) {
+        console.warn("⚠️ Very small text extracted, still continuing...");
       }
+
       content = `${USER_TEXT_INTRO}\n\n${text.slice(0, MAX_TEXT_CHARS)}`;
     } else {
       await markFailed(supabase, documentId);
-      return {
-        documentId,
-        filename,
-        status: "parse_failed",
-        message: "Unsupported file type.",
-      };
+      return { documentId, filename, status: "parse_failed" };
     }
-  } catch {
+  } catch (err) {
+    console.error("Parsing crash:", err);
     await markFailed(supabase, documentId);
-    await logAttempt(supabase, doc.student_id, documentId, attemptNo, null, null);
-    return {
-      documentId,
-      filename,
-      status: "parse_failed",
-      message: "Could not read the file contents.",
-    };
+    return { documentId, filename, status: "parse_failed" };
   }
 
-  // ── Groq call ──
   let json: unknown;
   let inTokens: number | null = null;
   let outTokens: number | null = null;
+
   try {
     const r = await groqChatJSON({
       system: EXTRACTION_SYSTEM,
       content,
       model: env.groqModel,
     });
+
     json = r.json;
     inTokens = r.usage.inTokens;
     outTokens = r.usage.outTokens;
   } catch (e) {
     await markFailed(supabase, documentId);
-    await logAttempt(supabase, doc.student_id, documentId, attemptNo, null, null);
-    return {
-      documentId,
-      filename,
-      status: "parse_failed",
-      message: e instanceof GroqError ? e.message : "Extraction call failed.",
-    };
+    return { documentId, filename, status: "parse_failed" };
   }
 
-  // ── Validate against contract ──
   const parsed = parseExtraction(json);
-  await logAttempt(supabase, doc.student_id, documentId, attemptNo, inTokens, outTokens);
+
   if (!parsed) {
+    console.error("❌ SCHEMA FAILED:", JSON.stringify(json, null, 2));
     await markFailed(supabase, documentId);
     return {
       documentId,
       filename,
       status: "parse_failed",
-      message: "Model output did not match the contract.",
+      message: "Schema mismatch",
     };
   }
 
@@ -261,15 +200,12 @@ export async function extractDocument(
   return { documentId, filename, status: "extracted" };
 }
 
-/**
- * Extract all still-pending documents for a term, sequentially (bounded cost,
- * gentle on rate limits). Each failure is isolated.
- */
 export async function extractPendingForTerm(
   termId: string,
 ): Promise<ExtractOutcome[]> {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return [];
+
   const { data: docs } = await supabase
     .from("documents")
     .select("id")
@@ -277,8 +213,10 @@ export async function extractPendingForTerm(
     .eq("extraction_status", "pending");
 
   const outcomes: ExtractOutcome[] = [];
+
   for (const d of docs ?? []) {
     outcomes.push(await extractDocument(d.id));
   }
+
   return outcomes;
 }

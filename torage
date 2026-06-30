@@ -1,0 +1,95 @@
+[35mPROJECT.md[m[36m:[m[32m81[m[36m:[mschema-validated (zod). A file that can't be [1;31mparse[md becomes `[1;31mparse[m_failed` and
+[35mPROJECT.md[m[36m:[m[32m125[m[36m:[m  "un[1;31mparse[mable_sections": ["string"],
+[35mPROJECT.md[m[36m:[m[32m176[m[36m:[m   groupings, [1;31mparse[m failures (manual entry), and the single per-term week-1
+[35mPROJECT.md[m[36m:[m[32m241[m[36m:[m- **Failure handling:** a document that fails to [1;31mparse[m becomes `[1;31mparse[m_failed`
+[35mapp/review/actions.ts[m[36m:[m[32m4[m[36m:[mimport { [1;31mparse[mExtraction, type ExtractionResult } from "@/lib/extraction/schema";
+[35mapp/review/actions.ts[m[36m:[m[32m89[m[36m:[m  const extract = doc ? [1;31mparse[mExtraction(doc.extracted_json) : null;
+[35mapp/review/actions.ts[m[36m:[m[32m174[m[36m:[m    items: [1;31mparse[mExtraction(d.extracted_json)?.assessment_items ?? [],
+[35mapp/review/actions.ts[m[36m:[m[32m252[m[36m:[m/** Manual fallback for a [1;31mparse[m_failed document. */
+[35mcomponents/processing/ProcessingClient.tsx[m[36m:[m[32m169[m[36m:[m  const failed = status === "[1;31mparse[m_failed";
+[35mcomponents/processing/ProcessingClient.tsx[m[36m:[m[32m222[m[36m:[m  if (status === "[1;31mparse[m_failed") {
+[35mcomponents/review/ReviewClient.tsx[m[36m:[m[32m34[m[36m:[m    payload.[1;31mparse[mFailures.length;
+[35mcomponents/review/ReviewClient.tsx[m[36m:[m[32m114[m[36m:[m      {payload.[1;31mparse[mFailures.length > 0 ? (
+[35mcomponents/review/ReviewClient.tsx[m[36m:[m[32m119[m[36m:[m          {payload.[1;31mparse[mFailures.map((f) => (
+[35mdocs/dpdp.md[m[36m:[m[32m36[m[36m:[mA document that can't be read becomes `[1;31mparse[m_failed` and degrades to
+[35mdocs/extraction-contract.md[m[36m:[m[32m19[m[36m:[m| PDF/DOCX with no text layer | degrades to `[1;31mparse[m_failed` ("try re-uploading as a photo") |
+[35mdocs/extraction-contract.md[m[36m:[m[32m42[m[36m:[mbecomes `[1;31mparse[m_failed`. Verified by
+[35mdocs/extraction-contract.md[m[36m:[m[32m52[m[36m:[m- A `[1;31mparse[m_failed` document **never blocks** its siblings — each is isolated.
+[35mlib/assembly/assemble.ts[m[36m:[m[32m2[m[36m:[mimport { [1;31mparse[mExtraction, type ExtractionResult } from "@/lib/extraction/schema";
+[35mlib/assembly/assemble.ts[m[36m:[m[32m22[m[36m:[m  [1;31mparse[mdByDoc: Map<string, ExtractionResult>,
+[35mlib/assembly/assemble.ts[m[36m:[m[32m26[m[36m:[m    const ex = [1;31mparse[mdByDoc.get(id);
+[35mlib/assembly/assemble.ts[m[36m:[m[32m74[m[36m:[m  const [1;31mparse[mdByDoc = new Map<string, ExtractionResult>();
+[35mlib/assembly/assemble.ts[m[36m:[m[32m77[m[36m:[m    const ex = [1;31mparse[mExtraction(d.extracted_json);
+[35mlib/assembly/assemble.ts[m[36m:[m[32m79[m[36m:[m    [1;31mparse[mdByDoc.set(d.id, ex);
+[35mlib/assembly/assemble.ts[m[36m:[m[32m109[m[36m:[m        reading_lists: collectReadingLists(g.documentIds, [1;31mparse[mdByDoc),
+[35mlib/assembly/assemble.ts[m[36m:[m[32m124[m[36m:[m      items: [1;31mparse[mdByDoc.get(id)?.assessment_items ?? [],
+[35mlib/assembly/reconcile.ts[m[36m:[m[32m20[m[36m:[mfunction [1;31mparse[mDueComparable(s: string): {
+[35mlib/assembly/reconcile.ts[m[36m:[m[32m134[m[36m:[m      const [1;31mparse[md = [1;31mparse[mDueComparable(due.resolved);
+[35mlib/assembly/reconcile.ts[m[36m:[m[32m135[m[36m:[m      dueDateType = [1;31mparse[md.type;
+[35mlib/assembly/reconcile.ts[m[36m:[m[32m136[m[36m:[m      if ([1;31mparse[md.type === "calendar_date") resolvedDueDate = [1;31mparse[md.iso;
+[35mlib/assembly/reconcile.ts[m[36m:[m[32m137[m[36m:[m      else if ([1;31mparse[md.type === "week_number")
+[35mlib/assembly/reconcile.ts[m[36m:[m[32m138[m[36m:[m        resolvedDueDate = resolveWeekDate([1;31mparse[md.week!, week1Start);
+[35mlib/assembly/resolveWeeks.ts[m[36m:[m[32m2[m[36m:[mimport { [1;31mparse[mExtraction } from "@/lib/extraction/schema";
+[35mlib/assembly/resolveWeeks.ts[m[36m:[m[32m44[m[36m:[m      items: [1;31mparse[mExtraction(d.extracted_json)?.assessment_items ?? [],
+[35mlib/extraction/extract.ts[m[36m:[m[32m10[m[36m:[mimport { [1;31mparse[mExtraction } from "@/lib/extraction/schema";
+[35mlib/extraction/extract.ts[m[36m:[m[32m17[m[36m:[m  status: "extracted" | "[1;31mparse[m_failed" | "skipped" | "error";
+[35mlib/extraction/extract.ts[m[36m:[m[32m90[m[36m:[m    .update({ extraction_status: "[1;31mparse[m_failed" })
+[35mlib/extraction/extract.ts[m[36m:[m[32m96[m[36m:[m * the document degrades to `[1;31mparse[m_failed` (→ manual entry on Screen 3) so it
+[35mlib/extraction/extract.ts[m[36m:[m[32m149[m[36m:[m      status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m163[m[36m:[m      status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m189[m[36m:[m          status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m199[m[36m:[m        status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m209[m[36m:[m      status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m233[m[36m:[m      status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m239[m[36m:[m  const [1;31mparse[md = [1;31mparse[mExtraction(json);
+[35mlib/extraction/extract.ts[m[36m:[m[32m241[m[36m:[m  if (![1;31mparse[md) {
+[35mlib/extraction/extract.ts[m[36m:[m[32m246[m[36m:[m      status: "[1;31mparse[m_failed",
+[35mlib/extraction/extract.ts[m[36m:[m[32m254[m[36m:[m      document_type: [1;31mparse[md.document_type,
+[35mlib/extraction/extract.ts[m[36m:[m[32m255[m[36m:[m      document_type_confidence: [1;31mparse[md.document_type_confidence,
+[35mlib/extraction/extract.ts[m[36m:[m[32m256[m[36m:[m      extracted_json: [1;31mparse[md as unknown as Json,
+[35mlib/extraction/prompt.ts[m[36m:[m[32m35[m[36m:[m  "un[1;31mparse[mable_sections": [string],
+[35mlib/extraction/prompt.ts[m[36m:[m[32m47[m[36m:[m8. Put any text you could not read into "un[1;31mparse[mable_sections", and brief notes in "extraction_notes".
+[35mlib/extraction/schema.ts[m[36m:[m[32m8[m[36m:[m * [1;31mparse[m_failed); this schema's job is to normalize imperfect-but-usable output.
+[35mlib/extraction/schema.ts[m[36m:[m[32m102[m[36m:[m  un[1;31mparse[mable_sections: z.array(z.string()).catch([]),
+[35mlib/extraction/schema.ts[m[36m:[m[32m112[m[36m:[m * from the shape that even the lenient schema can't recover (→ [1;31mparse[m_failed).
+[35mlib/extraction/schema.ts[m[36m:[m[32m114[m[36m:[mexport function [1;31mparse[mExtraction(value: unknown): ExtractionResult | null {
+[35mlib/groq.ts[m[36m:[m[32m27[m[36m:[m * Calls Groq chat completions in JSON mode and returns the [1;31mparse[md JSON object
+[35mlib/groq.ts[m[36m:[m[32m78[m[36m:[m    json = JSON.[1;31mparse[m(text);
+[35mlib/planner/load.ts[m[36m:[m[32m2[m[36m:[mimport { [1;31mparse[mExtraction } from "@/lib/extraction/schema";
+[35mlib/planner/load.ts[m[36m:[m[32m72[m[36m:[m  const extractByDoc = new Map<string, ReturnType<typeof [1;31mparse[mExtraction>>();
+[35mlib/planner/load.ts[m[36m:[m[32m79[m[36m:[m      extractByDoc.set(d.id, [1;31mparse[mExtraction(d.extracted_json));
+[35mlib/review/load.ts[m[36m:[m[32m23[m[36m:[m * with provenance), low-confidence groupings (with merge suggestions), [1;31mparse[m
+[35mlib/review/load.ts[m[36m:[m[32m153[m[36m:[m  const [1;31mparse[mFailures = (docs ?? [])
+[35mlib/review/load.ts[m[36m:[m[32m154[m[36m:[m    .filter((d) => d.extraction_status === "[1;31mparse[m_failed")
+[35mlib/review/load.ts[m[36m:[m[32m181[m[36m:[m    [1;31mparse[mFailures.length === 0;
+[35mlib/review/load.ts[m[36m:[m[32m189[m[36m:[m    [1;31mparse[mFailures,
+[35mlib/review/types.ts[m[36m:[m[32m39[m[36m:[m  [1;31mparse[mFailures: ReviewParseFailure[];
+[35mlib/supabase/database.types.ts[m[36m:[m[32m22[m[36m:[m  | "[1;31mparse[m_failed"
+[35mpackage-lock.json[m[36m:[m[32m1382[m[36m:[m        "[1;31mparse[m-svg-path": "^0.1.2",
+[35mpackage-lock.json[m[36m:[m[32m1421[m[36m:[m        "postcss-value-[1;31mparse[mr": "^4.1.0"
+[35mpackage-lock.json[m[36m:[m[32m1634[m[36m:[m    "node_modules/arg[1;31mparse[m": {
+[35mpackage-lock.json[m[36m:[m[32m1636[m[36m:[m      "resolved": "https://registry.npmjs.org/arg[1;31mparse[m/-/arg[1;31mparse[m-1.0.10.tgz",
+[35mpackage-lock.json[m[36m:[m[32m1668[m[36m:[m        "postcss-value-[1;31mparse[mr": "^4.2.0"
+[35mpackage-lock.json[m[36m:[m[32m2478[m[36m:[m        "arg[1;31mparse[m": "~1.0.3",
+[35mpackage-lock.json[m[36m:[m[32m2695[m[36m:[m    "node_modules/[1;31mparse[m-svg-path": {
+[35mpackage-lock.json[m[36m:[m[32m2697[m[36m:[m      "resolved": "https://registry.npmjs.org/[1;31mparse[m-svg-path/-/[1;31mparse[m-svg-path-0.1.2.tgz",
+[35mpackage-lock.json[m[36m:[m[32m2710[m[36m:[m    "node_modules/path-[1;31mparse[m": {
+[35mpackage-lock.json[m[36m:[m[32m2712[m[36m:[m      "resolved": "https://registry.npmjs.org/path-[1;31mparse[m/-/path-[1;31mparse[m-1.0.7.tgz",
+[35mpackage-lock.json[m[36m:[m[32m2800[m[36m:[m        "postcss-value-[1;31mparse[mr": "^4.0.0",
+[35mpackage-lock.json[m[36m:[m[32m2897[m[36m:[m        "postcss-selector-[1;31mparse[mr": "^6.1.1"
+[35mpackage-lock.json[m[36m:[m[32m2906[m[36m:[m    "node_modules/postcss-selector-[1;31mparse[mr": {
+[35mpackage-lock.json[m[36m:[m[32m2908[m[36m:[m      "resolved": "https://registry.npmjs.org/postcss-selector-[1;31mparse[mr/-/postcss-selector-[1;31mparse[mr-6.1.4.tgz",
+[35mpackage-lock.json[m[36m:[m[32m2920[m[36m:[m    "node_modules/postcss-value-[1;31mparse[mr": {
+[35mpackage-lock.json[m[36m:[m[32m2922[m[36m:[m      "resolved": "https://registry.npmjs.org/postcss-value-[1;31mparse[mr/-/postcss-value-[1;31mparse[mr-4.2.0.tgz",
+[35mpackage-lock.json[m[36m:[m[32m3056[m[36m:[m        "path-[1;31mparse[m": "^1.0.7",
+[35mpackage-lock.json[m[36m:[m[32m3301[m[36m:[m        "postcss-selector-[1;31mparse[mr": "^6.1.2",
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m4[m[36m:[m * Validates: (1) the canonical contract example [1;31mparse[ms, (2) messy-but-usable
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m6[m[36m:[m * (→ [1;31mparse[m_failed).
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m8[m[36m:[mimport { [1;31mparse[mExtraction } from "@/lib/extraction/schema";
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m41[m[36m:[m  un[1;31mparse[mable_sections: [],
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m70[m[36m:[mconst g = [1;31mparse[mExtraction(good);
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m71[m[36m:[massert("canonical example [1;31mparse[ms", g !== null);
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m76[m[36m:[mconst m = [1;31mparse[mExtraction(messy);
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m83[m[36m:[mconst bad = [1;31mparse[mExtraction(garbage);
+[35mscripts/test-extraction-schema.ts[m[36m:[m[32m84[m[36m:[massert("garbage rejected (-> [1;31mparse[m_failed)", bad === null);
+[35msupabase/migrations/0001_init.sql[m[36m:[m[32m20[m[36m:[m  ('pending','extracted','[1;31mparse[m_failed','confirmed');
