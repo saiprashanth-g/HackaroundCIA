@@ -10,6 +10,9 @@ import type { Database } from "@/lib/supabase/database.types";
  * rather than throwing.
  */
 export function createSupabaseBrowserClient() {
-  if (!isSupabaseConfigured) return null;
+  if (!isSupabaseConfigured) {
+    console.warn("⚠️ Supabase client could not be initialized: Environment variables (supabaseUrl or supabaseAnonKey) are missing.");
+    return null;
+  }
   return createBrowserClient<Database>(env.supabaseUrl, env.supabaseAnonKey);
 }
