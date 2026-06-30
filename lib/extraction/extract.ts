@@ -1,5 +1,5 @@
 import mammoth from "mammoth";
-import pdf from "pdf-parse";
+import * as pdf from "pdf-parse";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
 import { APP } from "@/lib/config";
@@ -46,10 +46,8 @@ function kindOf(filename: string): { kind: Kind; mime: string } {
 }
 
 async function pdfToText(buf: ArrayBuffer): Promise<string> {
-  const { extractText, getDocumentProxy } = await import("unpdf");
-  const pdf = await getDocumentProxy(new Uint8Array(buf));
-  const { text } = await extractText(pdf, { mergePages: true });
-  return Array.isArray(text) ? text.join("\n\n") : text;
+  const data = await (pdf as any)(Buffer.from(buf));
+  return data.text || "";
 }
 
 async function docxToText(buf: ArrayBuffer): Promise<string> {
@@ -142,9 +140,8 @@ export async function extractDocument(
 
       let text = raw.trim();
 
-      // 🔥 FIX: DO NOT FAIL EARLY
       if (!text || text.length < 5) {
-        console.warn("⚠️ Very small text extracted, still proceeding...");
+        console.warn("⚠️ Very small text extracted, still continuing...");
       }
 
       content = `${USER_TEXT_INTRO}\n\n${text.slice(0, MAX_TEXT_CHARS)}`;
